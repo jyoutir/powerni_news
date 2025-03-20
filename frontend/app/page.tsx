@@ -4,9 +4,7 @@ import { useEffect, useState, FormEvent } from 'react';
 
 interface Report {
   subject: string;
-  executive_summary: string;
-  short_term_analysis: string;
-  long_term_analysis: string;
+  content: string;
   sources: string;
   generated_at: string;
 }
@@ -18,22 +16,44 @@ interface StoredEmail {
 
 function formatMarkdown(text: string): string {
   return text
+    // Handle strong/bold text
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\[(\d+)\]/g, '<span class="source-link">[$1]</span>');
+    // Handle source references
+    .replace(/\[(\d+)\]/g, '<span class="source-link">[$1]</span>')
+    // Handle numbered lists
+    .replace(/^(\d+)\.\s/gm, '<span class="number">$1.</span> ')
+    // Handle bullet points (only at start of line or after newline)
+    .split('\n')
+    .map(line => {
+      if (line.trim().startsWith('- ')) {
+        return `<p class="bullet-point">• ${line.trim().substring(2)}</p>`;
+      }
+      return `<p>${line}</p>`;
+    })
+    .join('')
+    // Clean up empty paragraphs
+    .replace(/<p>\s*<\/p>/g, '')
+    // Clean up multiple consecutive line breaks
+    .replace(/(<\/p>\s*<p>){2,}/g, '</p><p>');
 }
 
-function formatKeyPoints(text: string): string[] {
-  return text
-    .split('\n')
-    .filter(line => line.trim())
-    .map(line => {
-      const cleanLine = line.replace(/^[•-]\s*/, '');
-      const [title, ...content] = cleanLine.split(':');
-      if (content.length > 0) {
-        return `<strong>${title}:</strong> ${content.join(':')}`;
-      }
-      return cleanLine;
-    });
+function parseSection(content: string): { title: string; body: string } {
+  const lines = content.split('\n');
+  const title = lines[0].replace(/^\*\*(.*?)\*\*:?/, '$1').trim();
+  const body = lines.slice(1).join('\n').trim();
+  return { title, body };
+}
+
+function parseReportContent(content: string): { shortTerm: string; longTerm: string } {
+  const sections = content.split('---').map(section => section.trim());
+  
+  const shortTermSection = sections[0].split('**Short-Term Analysis')[1];
+  const longTermSection = sections[1].split('**Long-Term Analysis')[1];
+  
+  return {
+    shortTerm: shortTermSection ? shortTermSection.trim() : '',
+    longTerm: longTermSection ? longTermSection.trim() : ''
+  };
 }
 
 export default function Home() {
@@ -127,45 +147,32 @@ export default function Home() {
             <p className="report-subject">{report.subject}</p>
           </section>
 
-          <section className="section">
-            <h2 className="section-title">Executive Summary</h2>
-            <div 
-              className="text-content"
-              dangerouslySetInnerHTML={{ 
-                __html: formatMarkdown(report.executive_summary)
-              }}
-            />
-          </section>
+          {(() => {
+            const { shortTerm, longTerm } = parseReportContent(report.content);
+            return (
+              <>
+                <section className="section">
+                  <h2 className="section-title">Short-Term Analysis</h2>
+                  <div
+                    className="report-section"
+                    dangerouslySetInnerHTML={{
+                      __html: formatMarkdown(shortTerm)
+                    }}
+                  />
+                </section>
 
-          <section className="section">
-            <h2 className="section-title">Short-Term Market Analysis</h2>
-            <div className="key-points">
-              {formatKeyPoints(report.short_term_analysis).map((point, index) => (
-                <div
-                  key={index}
-                  className="key-point"
-                  dangerouslySetInnerHTML={{
-                    __html: formatMarkdown(point)
-                  }}
-                />
-              ))}
-            </div>
-          </section>
-
-          <section className="section">
-            <h2 className="section-title">Long-Term Market Analysis</h2>
-            <div className="key-points">
-              {formatKeyPoints(report.long_term_analysis).map((point, index) => (
-                <div
-                  key={index}
-                  className="key-point"
-                  dangerouslySetInnerHTML={{
-                    __html: formatMarkdown(point)
-                  }}
-                />
-              ))}
-            </div>
-          </section>
+                <section className="section">
+                  <h2 className="section-title">Long-Term Analysis</h2>
+                  <div
+                    className="report-section"
+                    dangerouslySetInnerHTML={{
+                      __html: formatMarkdown(longTerm)
+                    }}
+                  />
+                </section>
+              </>
+            );
+          })()}
 
           <section className="section newsletter-section">
             <h2 className="section-title">Stay Updated</h2>

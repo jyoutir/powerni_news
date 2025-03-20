@@ -43,7 +43,7 @@ npm install
 cd ..
 ```
 
-### 3. Running the Dashboard
+### 3. Running the webpage
 
 You'll need two terminal windows open:
 
@@ -52,22 +52,15 @@ You'll need two terminal windows open:
 cd frontend
 npm run dev
 ```
-The dashboard will be available at: http://localhost:3000
+The webpage will be available at: http://localhost:3000
 
-#### Terminal 2 - Generate Report
+#### Terminal 2 - Backend - generating the Report
 ```bash
 cd backend
 python3 generate_static_report.py
 ```
 
-### 4. Using the Dashboard
-
-When everything is running correctly, you should see:
-- A clean, modern dashboard with light grey widget boxes
-- Real-time market data and analysis
-- Interactive newsletter signup form
-- Properly formatted source citations
-- Automatic updates when new reports are generated
+### 4. Using the webpage
 
 #### What You'll See
 1. Title and timestamp
@@ -77,19 +70,14 @@ When everything is running correctly, you should see:
 5. Newsletter signup section
 6. Source references
 
-#### Generating New Reports
+#### making new reports
 1. To generate a fresh market report:
    ```bash
    cd backend
    python3 generate_static_report.py
    ```
 2. You should see confirmation messages about the report being saved
-3. The dashboard will automatically refresh with new data
-4. Each report includes:
-   - Current market conditions
-   - ISEM Day Ahead predictions
-   - Latest trends and analysis
-   - Updated source references
+3. The webpage will automatically refresh with new data
 
 ### Troubleshooting
 
@@ -117,7 +105,7 @@ For any other issues, please contact support.
 
 ## Newsletter Subscription
 
-The dashboard includes a newsletter subscription feature that:
+The webpage includes a newsletter subscription feature that:
 - Collects email addresses
 - Stores them locally
 - Shows a list of subscribed emails
@@ -133,3 +121,8 @@ For developers and technical users:
 - Backend: Python with aiohttp
 - API: Perplexity AI for market analysis
 - Storage: Local JSON files and localStorage
+
+if you wanted to deploy this within PowerNI, you would simply migrate all local hosting to cloudservices, like AWS/microsoft azure
+and internally generate the emails weekly. 
+
+This is also a prototype, there is much room for improvement, namely in the prompt generation, parsing and format handling - but this would require signifiganly more time investemed 
