@@ -101,7 +101,7 @@ python3 generate_static_report.py
    - Check that you've created the `.env` file in the backend folder
    - Verify your API key is correctly formatted
 
-For any other issues, please contact support.
+For any other issues, please ask chatGPT with relevant context/ email: jyoutirraj2004@gmail.com
 
 ## Newsletter Subscription
 
